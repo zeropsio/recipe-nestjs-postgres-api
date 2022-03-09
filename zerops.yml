@@ -4,7 +4,7 @@ api:
     build:
       - npm i
       - npm run build
-    deploy: [ './dist', 'node_modules', 'package.json' ],
+    deploy: [ './dist', 'node_modules', 'package.json' ]
     cache: [ 'node_modules' ]
   run:
     start: npm run start:prod
