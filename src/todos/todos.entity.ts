@@ -1,6 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({
+  orderBy: {
+    id: 'ASC',
+  },
+})
 export class Todo {
   @PrimaryGeneratedColumn()
   id: number;
