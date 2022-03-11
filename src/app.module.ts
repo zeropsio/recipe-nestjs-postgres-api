@@ -11,7 +11,6 @@ import { TodosModule } from './todos/todos.module';
       type: 'postgres',
       url: process.env.DB_URL,
       autoLoadEntities: true,
-      synchronize: true,
     }),
     TodosModule,
   ],
