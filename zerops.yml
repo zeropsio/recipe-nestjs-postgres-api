@@ -8,3 +8,14 @@ api:
     cache: [ 'node_modules' ]
   run:
     start: npm run start:prod
+
+api2:
+  build:
+    base: [ nodejs@14 ]
+    build:
+      - npm i
+      - npm run build
+    deploy: [ './dist', 'node_modules', 'package.json' ]
+    cache: [ 'node_modules' ]
+  run:
+    start: npm run start:prod
