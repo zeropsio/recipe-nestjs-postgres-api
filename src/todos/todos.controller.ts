@@ -7,14 +7,23 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Req,
+  Request,
+  LoggerService,
+  Inject,
 } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { CreateTodoDto } from './dtos/create.todo.dto';
 import { UpdateTodoDto } from './dtos/update.todo.dto';
 import { TodosService } from './todos.service';
 
 @Controller('todos')
 export class TodosController {
-  constructor(private readonly todosService: TodosService) {}
+  constructor(
+    private readonly todosService: TodosService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
+  ) {}
 
   @Post()
   create(@Body() createTodoDto: CreateTodoDto) {
@@ -22,8 +31,11 @@ export class TodosController {
   }
 
   @Get()
-  findAll() {
-    return this.todosService.findAll();
+  findAll(@Req() req: Request) {
+    if (Math.random() < 0.3) {
+      this.logger.error('foo');
+    }
+    this.logger.log(`Request data: ${JSON.stringify(req.headers)}`);
   }
 
   @Get(':id')

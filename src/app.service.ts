@@ -1,45 +1,88 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { EntityManager, Connection } from 'typeorm';
 import { Todo } from './todos/todos.entity';
-import * as bunyan from 'bunyan';
-
-const log = bunyan.createLogger({
-  name: 'myapp',
-  level: 'info',
-});
+import * as winston from 'winston';
+import * as Syslog from 'winston-syslog';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
+  private readonly logger: winston.Logger;
+
   constructor(
     private readonly entityManager: EntityManager,
     private readonly connection: Connection,
-  ) {}
+  ) {
+    this.logger = winston.createLogger({
+      transports: [
+        new winston.transports.Console()
+        // new Syslog.Syslog({
+        //   host: 'localhost',
+        //   port: 514,
+        //   protocol: 'udp4',
+        //   app_name: 'my-nest-app',
+        // }),
+      ],
+    });
+  }
 
   onApplicationBootstrap() {
-    let i = 0;
+    const logTemplates = [
+      // Previous templates...
+      (userId: any) => `User ${userId} logged in successfully.`,
+      (userId: any) => `User ${userId} attempted to access restricted area.`,
+      (userId: any) => `Error fetching user details for user ${userId}.`,
+
+      // Multiline error message
+      (userId: any) =>
+        `Error encountered for user ${userId}:\nStack Trace:\nError: Invalid operation\n    at moduleA (moduleA.js:10:20)\n    at moduleB (moduleB.js:5:15)`,
+
+      // JSON output
+      (userId: any) =>
+        JSON.stringify(
+          {
+            timestamp: new Date().toISOString(),
+            level: 'info',
+            userId: userId,
+            action: 'Data processed',
+            status: 'Success',
+            metadata: { ip: '192.168.1.10', sessionId: 'abc123' },
+          },
+          null,
+          2,
+        ),
+
+      // More complex multi-line JSON
+      (userId: any) =>
+        `Processing details for user ${userId}:\n` +
+        JSON.stringify(
+          {
+            timestamp: new Date().toISOString(),
+            processId: Math.floor(Math.random() * 10000),
+            userId: userId,
+            steps: [
+              { step: 'validate', status: 'complete' },
+              { step: 'transform', status: 'in_progress' },
+              { step: 'load', status: 'pending' },
+            ],
+          },
+          null,
+          2,
+        ),
+      // ... additional templates as needed
+    ];
+
     setInterval(() => {
-      const baseMessageSegment =
-        'Message logged with random value: ' +
-        Math.floor(Math.random() * 1000000);
+      const randomIndex = Math.floor(Math.random() * logTemplates.length);
+      const randomUserId = Math.floor(Math.random() * 1000) + 1; // simulate user IDs
+      const logMessage = logTemplates[randomIndex](randomUserId);
 
-      const multiplier = Math.floor(Math.random() * 3) + 1;
-
-      let extendedMessage = '';
-      for (let i = 0; i < multiplier; i++) {
-        extendedMessage += baseMessageSegment;
-        if (i < multiplier - 1) extendedMessage += ' | ';
-      }
-
-      if (Math.random() < 0.05) {
-        log.error(`[${i}] ${extendedMessage}`);
+      // Randomly log either info or error messages
+      if (Math.random() < 0.1) {
+        this.logger.info(logMessage);
       } else {
-        log.info(`[${i}] ${extendedMessage}`);
+        this.logger.error(logMessage);
       }
-
-      i++;
     }, 200);
-
-    this.seed(JSON.parse(process.env.ZEROPS_RECIPE_DATA_SEED || '[]'));
   }
 
   async seed(data: string[]) {
