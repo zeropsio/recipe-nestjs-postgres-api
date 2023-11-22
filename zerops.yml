@@ -5,7 +5,7 @@ api:
       - npm i --verbose
       - npm run build --verbose
       # - exit 1
-    deploy: [ './dist', 'package.json' ]
+    deploy: [ './dist', 'node_modules', 'package.json' ]
     # cache: [ 'node_modules', 'package-lock.json' ]
   run:
     prepare:
