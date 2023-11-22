@@ -9,7 +9,8 @@ api:
     # cache: [ 'node_modules', 'package-lock.json' ]
   run:
     prepare:
-      - echo "foobar22314"
+      - echo "foobar22314Aě"
+      # - exit 1
     start: npm run start:prod
 
 api2:
