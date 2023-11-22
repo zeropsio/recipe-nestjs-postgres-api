@@ -1,11 +1,11 @@
 api:
   build:
-    base: [ nodejs@16 ]
+    base: [ nodejs@18 ]
     build:
       - npm i --verbose
       - npm run build --verbose
       # - exit 1
-    deploy: [ './dist', 'node_modules', 'package.json' ]
+    deploy: [ './dist', 'package.json' ]
     # cache: [ 'node_modules', 'package-lock.json' ]
   run:
     prepare:
